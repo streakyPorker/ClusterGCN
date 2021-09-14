@@ -1,10 +1,12 @@
 import torch
 from torch_geometric.nn import GCNConv
 
+
 class StackedGCN(torch.nn.Module):
     """
     Multi-layer GCN model.
     """
+
     def __init__(self, args, input_channels, output_channels):
         """
         :param args: Arguments object.
@@ -24,7 +26,7 @@ class StackedGCN(torch.nn.Module):
         self.layers = []
         self.args.layers = [self.input_channels] + self.args.layers + [self.output_channels]
         for i, _ in enumerate(self.args.layers[:-1]):
-            self.layers.append(GCNConv(self.args.layers[i],self.args.layers[i+1]))
+            self.layers.append(GCNConv(self.args.layers[i], self.args.layers[i + 1]))
         self.layers = ListModule(*self.layers)
 
     def forward(self, edges, features):
@@ -36,16 +38,18 @@ class StackedGCN(torch.nn.Module):
         """
         for i, _ in enumerate(self.args.layers[:-2]):
             features = torch.nn.functional.relu(self.layers[i](features, edges))
-            if i>1:
-                features = torch.nn.functional.dropout(features, p = self.args.dropout, training = self.training)
-        features = self.layers[i+1](features, edges)
+            if i > 1:
+                features = torch.nn.functional.dropout(features, p=self.args.dropout, training=self.training)
+        features = self.layers[i + 1](features, edges)
         predictions = torch.nn.functional.log_softmax(features, dim=1)
         return predictions
+
 
 class ListModule(torch.nn.Module):
     """
     Abstract list layer class.
     """
+
     def __init__(self, *args):
         """
         Module initializing.

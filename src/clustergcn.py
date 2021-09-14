@@ -7,15 +7,17 @@ from torch.autograd import Variable
 from sklearn.metrics import f1_score
 from sklearn.metrics import accuracy_score
 
+
 class ClusterGCNTrainer(object):
     """
     Training a ClusterGCN.
     """
+
     def __init__(self, args, clustering_machine):
         """
         :param ags: Arguments object.
         :param clustering_machine:
-        """  
+        """
         self.args = args
         self.clustering_machine = clustering_machine
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -52,9 +54,9 @@ class ClusterGCNTrainer(object):
         :param node_count: Number of nodes in currently processed cluster.
         :return average_loss: Average loss in the epoch.
         """
-        self.accumulated_training_loss = self.accumulated_training_loss + batch_average_loss.item()*node_count
+        self.accumulated_training_loss = self.accumulated_training_loss + batch_average_loss.item() * node_count
         self.node_count_seen = self.node_count_seen + node_count
-        average_loss = self.accumulated_training_loss/self.node_count_seen
+        average_loss = self.accumulated_training_loss / self.node_count_seen
         return average_loss
 
     def do_prediction(self, cluster):
@@ -71,7 +73,7 @@ class ClusterGCNTrainer(object):
         target = self.clustering_machine.sg_targets[cluster].to(self.device).squeeze()
         target = target[test_nodes]
         prediction = self.model(edges, features)
-        prediction = prediction[test_nodes,:]
+        prediction = prediction[test_nodes, :]
         return prediction, target
 
     def train(self):
@@ -79,7 +81,7 @@ class ClusterGCNTrainer(object):
         Training a model.
         """
         print("Training started.\n")
-        epochs = trange(self.args.epochs, desc = "Train Loss")
+        epochs = trange(self.args.epochs, desc="Train Loss")
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         self.model.train()
         for epoch in epochs:
@@ -92,7 +94,7 @@ class ClusterGCNTrainer(object):
                 batch_average_loss.backward()
                 self.optimizer.step()
                 average_loss = self.update_average_loss(batch_average_loss, node_count)
-            epochs.set_description("Train Loss: %g" % round(average_loss,4))
+            epochs.set_description("Train Loss: %g" % round(average_loss, 4))
 
     def test(self):
         """

@@ -5,6 +5,7 @@ import networkx as nx
 from texttable import Texttable
 from scipy.sparse import coo_matrix
 
+
 def tab_printer(args):
     """
     Function to print the logs in a nice tabular format.
@@ -12,9 +13,10 @@ def tab_printer(args):
     """
     args = vars(args)
     keys = sorted(args.keys())
-    t = Texttable() 
-    t.add_rows([["Parameter", "Value"]] +  [[k.replace("_"," ").capitalize(),args[k]] for k in keys])
+    t = Texttable()
+    t.add_rows([["Parameter", "Value"]] + [[k.replace("_", " ").capitalize(), args[k]] for k in keys])
     print(t.draw())
+
 
 def graph_reader(path):
     """
@@ -24,6 +26,7 @@ def graph_reader(path):
     """
     graph = nx.from_edgelist(pd.read_csv(path).values.tolist())
     return graph
+
 
 def feature_reader(path):
     """
@@ -35,10 +38,11 @@ def feature_reader(path):
     node_index = features["node_id"].values.tolist()
     feature_index = features["feature_id"].values.tolist()
     feature_values = features["value"].values.tolist()
-    node_count = max(node_index)+1
-    feature_count = max(feature_index)+1
+    node_count = max(node_index) + 1
+    feature_count = max(feature_index) + 1
     features = coo_matrix((feature_values, (node_index, feature_index)), shape=(node_count, feature_count)).toarray()
     return features
+
 
 def target_reader(path):
     """
@@ -46,5 +50,5 @@ def target_reader(path):
     :param path: Path to the target.
     :return target: Target vector.
     """
-    target = np.array(pd.read_csv(path)["target"]).reshape(-1,1)
+    target = np.array(pd.read_csv(path)["target"]).reshape(-1, 1)
     return target

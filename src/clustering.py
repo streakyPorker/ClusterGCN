@@ -5,10 +5,12 @@ import numpy as np
 import networkx as nx
 from sklearn.model_selection import train_test_split
 
+
 class ClusteringMachine(object):
     """
     Clustering the graph, feature set and target.
     """
+
     def __init__(self, args, graph, features, target):
         """
         :param args: Arguments object with parameters.
@@ -26,8 +28,8 @@ class ClusteringMachine(object):
         """
         Setting the feature and class count.
         """
-        self.feature_count = self.features.shape[1] 
-        self.class_count = np.max(self.target)+1
+        self.feature_count = self.features.shape[1]
+        self.class_count = np.max(self.target) + 1
 
     def decompose(self):
         """
@@ -68,15 +70,18 @@ class ClusteringMachine(object):
         self.sg_features = {}
         self.sg_targets = {}
         for cluster in self.clusters:
-            subgraph = self.graph.subgraph([node for node in sorted(self.graph.nodes()) if self.cluster_membership[node] == cluster])
+            subgraph = self.graph.subgraph(
+                [node for node in sorted(self.graph.nodes()) if self.cluster_membership[node] == cluster])
             self.sg_nodes[cluster] = [node for node in sorted(subgraph.nodes())]
             mapper = {node: i for i, node in enumerate(sorted(self.sg_nodes[cluster]))}
-            self.sg_edges[cluster] = [[mapper[edge[0]], mapper[edge[1]]] for edge in subgraph.edges()] +  [[mapper[edge[1]], mapper[edge[0]]] for edge in subgraph.edges()]
-            self.sg_train_nodes[cluster], self.sg_test_nodes[cluster] = train_test_split(list(mapper.values()), test_size = self.args.test_ratio)
+            self.sg_edges[cluster] = [[mapper[edge[0]], mapper[edge[1]]] for edge in subgraph.edges()] + [
+                [mapper[edge[1]], mapper[edge[0]]] for edge in subgraph.edges()]
+            self.sg_train_nodes[cluster], self.sg_test_nodes[cluster] = train_test_split(list(mapper.values()),
+                                                                                         test_size=self.args.test_ratio)
             self.sg_test_nodes[cluster] = sorted(self.sg_test_nodes[cluster])
             self.sg_train_nodes[cluster] = sorted(self.sg_train_nodes[cluster])
-            self.sg_features[cluster] = self.features[self.sg_nodes[cluster],:]
-            self.sg_targets[cluster] = self.target[self.sg_nodes[cluster],:]
+            self.sg_features[cluster] = self.features[self.sg_nodes[cluster], :]
+            self.sg_targets[cluster] = self.target[self.sg_nodes[cluster], :]
 
     def transfer_edges_and_nodes(self):
         """
